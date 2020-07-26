@@ -1,0 +1,2 @@
+INDEX VERSION 1.131+C:\Users\LG\Desktop\제출용\3-겨울 객체지향\sql test\.metadata\.plugins\org.eclipse.jdt.core
+3800994485.index

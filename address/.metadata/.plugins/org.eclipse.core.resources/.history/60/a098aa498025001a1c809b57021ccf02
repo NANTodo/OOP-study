@@ -1,0 +1,63 @@
+package address;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class printPanel  extends JPanel {
+	private JButton	bck;
+	private JTextArea listArea;
+	static String fname ="C:\\temp\\juso.txt";
+	
+	
+	public printPanel (PrimaryPanel primary) throws IOException {
+	
+		this.setLayout(null);
+		this.listArea = new JTextArea(200,500);
+		this.add(listArea);
+		this.add(new JScrollPane(listArea));
+		this.setVisible(true);
+				
+		String str = "";
+		File f = new File(fname);
+	    if(!f.exists()) {
+	       BufferedWriter bw = new BufferedWriter(new FileWriter(fname));
+	       bw.close();
+	    }
+	    BufferedReader br = new BufferedReader(new FileReader(fname));
+	    int i;
+	    
+	    for(i=1;;i++)
+	    {
+	       if(!br.ready())
+	          break;
+	       else {
+	          if((str=br.readLine()) != null){
+					listArea.setText("");
+					listArea.setText(listArea.getText() + str + "\n");
+					}
+	       }
+	    }
+	    if(i==1) {
+	       listArea.setText("");
+	       listArea.setText("\n**연락처 파일에 전화번호가 하나도 없어요.**\n");
+	       }
+	    br.close();
+	    
+	    this.bck = new JButton("BACK");
+	    this.bck.setBounds(30, 600, 150,100);
+	    this.bck.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		primary.disablePrintPanel();
+	    		
+	    	}
+	    });
+	}
+}

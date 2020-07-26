@@ -1,0 +1,22 @@
+package multichat;
+
+import java.util.ArrayList;
+
+import javax.swing.JComponent;
+import javax.swing.JTextArea;
+
+public class MultiChatData {
+
+	JTextArea area;								
+	
+	public void addObj(JComponent comp)			
+	{
+		area = (JTextArea)comp;
+	}
+	public void refreshData(String msg)			
+	{
+		area.append(msg);
+	}
+	
+	
+}

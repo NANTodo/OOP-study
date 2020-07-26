@@ -1,0 +1,96 @@
+package sqltest;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import com.sun.jdi.connect.spi.Connection;
+
+public class ProductDAO{
+	private int prcode;
+	private String prname;
+	private int price;
+	private String manufacture;
+
+
+public int getPrcode() {
+	return prcode;
+}
+public void setPRocode(int prcode) {
+	this.prcode = prcode;
+}
+public String getPrname() {
+	return prname;
+}
+public void setPrname(String prname) {
+	this.prname = prname;
+}
+public int getPrice() {
+	return price;
+}
+public void setPrice(int price) {
+	this.price = price;
+}
+public String getManufacture() {
+	return manufacture;
+}
+public void setManufacture(String manufacture) {
+	this.manufacture = manufacture;
+}
+
+public class ProductDAO {
+	String jdbcDriver = "com.mysql.jdbc.Driver";
+	String jdbcUrl = "jdbc:mysql://localhost/javadb";
+	Connection conn;
+	
+	PreparedStatement pstmt;
+	ResultSet rs;
+	
+	Vector<String> items = null;
+	String sql;
+	
+}
+public ArrayList<Product> getAll(){
+	connectDB();
+	sql = "selct * from product";
+	
+	ArrayList<Product> datas = new ArrayList<Product>();
+	
+	items = new Vector<String>();
+	items.add("ÀüÃ¼");
+	
+	while(rs.next()) {
+		Product p = new Product();
+		p.setPrcode(rs.getInt("prcode"));
+		p.setPrname(rs.getString("prname"));
+		p.setPrice(rs.getInt("price"));
+		p.setManufacture(rs.getSTring("manufacture"));
+		datas.add(p);
+		items.add(String.copyValueOf(rs.getInt("prcode")));	
+	}
+	
+	sql = "select * from product where prcode = ?";
+	Product p = null;
+	try {
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setInt(1,prcode);
+		rs = pstmt.executeQuery();
+		
+		rs.next();
+		p = new Product();
+		p.setPrcode(rs.getInt("prcode"));
+		p.setPrname(rs.getString("prname"));
+		p.setPrice(rs.getInt("price"));
+		p.setManufacture(rs.getString("manufacture"));
+	}
+	sql = "update product set prname = ?, preice = ?, manufacture = ? where prcode = ?";
+	try {
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setString(1,product.getPrname());
+		pstmt.setInt(2,product.getPrice());
+		pstmt.setString(3, product.getManufacture());
+		pstmt.setInt(4, product.getPrcode());
+		pstmt.executeUpdate();
+	}
+}

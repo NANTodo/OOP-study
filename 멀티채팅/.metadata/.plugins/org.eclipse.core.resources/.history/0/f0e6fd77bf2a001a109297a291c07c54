@@ -1,0 +1,45 @@
+package multichat;
+
+public class Message {
+
+	private String id;													//아이디 
+	private String passwd;												//패스워드
+	private String msg;													//메세지
+	private String type;												//login logout 여부
+	
+	public Message() {}
+	public Message(String rId, String message1, String message2, String rType)	
+	{
+		id = rId;
+		passwd = message1;
+		msg = message2;
+		type = rType;
+	}
+	
+	public String getId() {								
+		return id;
+	}
+	public void setId(String id) {						
+		this.id = id;
+	}
+	public String getPasswd() {							
+		return passwd;
+	}
+	public void setPasswd(String passwd) {				
+		this.passwd = passwd;
+	}
+	public String getMsg() {							
+		return msg;
+	}
+	public void setMsg(String msg) {					
+		this.msg = msg;
+	}
+	public String getType() {							
+		return type;
+	}
+	public void setType(String type) {					
+		this.type = type;
+	}
+	
+
+}

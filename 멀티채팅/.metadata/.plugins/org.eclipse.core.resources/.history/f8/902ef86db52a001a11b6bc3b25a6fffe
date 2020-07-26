@@ -1,0 +1,96 @@
+package multichat;
+
+import java.net.*;
+import java.util.*;
+import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+
+import java.awt.*;
+import java.io.*;
+
+public class MultiChatServer {
+
+	private ServerSocket ss = null;
+	private Socket s = null;
+	private boolean status;
+
+	ArrayList<ChatThread> chatThreads = new ArrayList<ChatThread>();
+
+	Logger logger;
+
+	public void start() {
+		logger = Logger.getLogger(this.getClass().getName());
+
+		try {
+			ss = new ServerSocket(8888);
+			logger.info("MultiChatServer start");
+
+			while (true) {
+				s = ss.accept();
+				ChatThread chat = new ChatThread();
+				chatThreads.add(chat);
+				chat.start();
+			}
+		} catch (Exception e) {
+			logger.info("[MultiChatServer]start() Exception 발생!!");
+			e.printStackTrace();
+		}
+
+	}
+
+	class ChatThread extends Thread {
+		String msg;
+		Message m = new Message();
+		Gson gson = new Gson();
+
+		private BufferedReader inMsg = null;
+		private PrintWriter outMsg = null;
+
+		public void run() {
+			try {
+				inMsg = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				outMsg = new PrintWriter(s.getOutputStream(), true);
+			} catch (IOException e) {
+				e.printStackTrace();
+				status = false;
+			}
+			while (status) {
+				try {
+					msg = inMsg.readLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				m = gson.fromJson(msg, Message.class); // 메세지를 json 으로 파싱후 Message 객체에 저장
+
+				if (m.getType().equals("logout")) // 로그아웃일 경우
+				{
+					chatThreads.remove(this); // 해당 클라이언트 쓰래드 삭제
+
+					msgSendAll(gson.toJson(new Message(m.getId(), "", "님이 종료했습니다.", "server"))); // 로그아웃 메세지 출력
+				} else if (m.getType().equals("login")) // 로그인일 경우
+				{
+					msgSendAll(gson.toJson(new Message(m.getId(), "", "님이 로그인 했습니다.", "server"))); // 로그인 메세지 출력
+				} else // 이외의 경우 메세지 그대로 모든 클라이언트 채팅창에 출력
+				{
+					msgSendAll(gson.toJson(new Message(m.getId(), m.getPasswd(), m.getMsg(), m.getType())));
+				}
+			}
+
+			this.interrupt(); // 채팅창에 아무도 없는 경우 종료
+			logger.info(this.getName() + " 종료됨!!");
+			status = false;
+		}
+
+		void msgSendAll(String msg) // 연결된 모든 사용자에게 메시지를 전달하는 역할
+		{
+
+			for (ChatThread ct : chatThreads) // 한 클라이언트가 한 채팅물 모든 클라이언트 채팅창에 전달
+			{
+				System.out.println(msg);
+				ct.outMsg.println(msg);
+			}
+
+		}
+	}
+}

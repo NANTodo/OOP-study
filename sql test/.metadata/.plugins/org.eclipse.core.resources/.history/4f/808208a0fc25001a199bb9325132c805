@@ -1,0 +1,9 @@
+package connectDB
+
+Class.forName("com.mysql.jdbc.Driver");
+jdbc:mysql://172.16.47.89/testdb:PORT
+	
+	
+	public class EventRegist {
+
+}

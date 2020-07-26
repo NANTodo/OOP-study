@@ -1,0 +1,307 @@
+package notepad;
+
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+import javax.swing.filechooser.*;
+
+public class notememo {
+	static class MemoPro extends JFrame {
+			
+			/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+			protected JMenuBar menuBar;
+			protected JMenu fileMenu, editMenu, helpMenu;
+			protected JMenuItem newMenu, openMenu, saveMenu, changeMenu;
+			protected JMenuItem endMenu, smallFont, mediumFont, largeFont;
+			protected JMenuItem infoMenu;
+			protected JTextArea textArea;
+			protected JToolBar toolBar;
+			protected JButton newBtn, openBtn, saveBtn, changeBtn, endBtn;
+			protected JButton smallBtn, largeBtn, mediumBtn;
+			protected JButton infoBtn;
+			
+			protected String strPath, strFilename;
+			
+			Container pane;
+			
+			public MemoPro() {
+			setName("notepad");
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			pane=getContentPane();
+			pane.setLayout(new BorderLayout());
+
+			
+			menuBar = new JMenuBar();
+						
+			fileMenu = new JMenu("파일");
+			editMenu = new JMenu("보기");
+			helpMenu = new JMenu("도움말");
+			
+			setJMenuBar(menuBar);
+			
+			menuBar.add(fileMenu);
+			menuBar.add(editMenu);
+			menuBar.add(helpMenu);
+			
+			newMenu = new JMenuItem("새로만들기");
+			openMenu = new JMenuItem("열기");
+			saveMenu = new JMenuItem("저장");
+			changeMenu = new JMenuItem("다른이름 저장");
+			endMenu = new JMenuItem("끝내기");
+			smallFont = new JMenuItem("작게");
+			mediumFont = new JMenuItem("보통");
+			largeFont = new JMenuItem("크게");
+			infoMenu = new JMenuItem("프로그램 정보");
+			
+			
+			newMenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					newFile();
+				}
+			});
+			openMenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					openFile();
+				}
+			});
+			saveMenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					saveFile();
+				}
+			});
+			changeMenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					changeFile();
+				}
+			});
+			endMenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					endFile();
+				}
+			});
+			
+			smallFont.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fontFile(5);
+				}
+			});
+			mediumFont.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fontFile(12);
+				}
+			});
+			largeFont.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fontFile(25);
+				}
+			});
+			infoMenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					infoFile();
+				}
+			});
+			
+			
+			fileMenu.add(newMenu);
+			fileMenu.add(openMenu);
+			fileMenu.add(saveMenu);
+			fileMenu.add(changeMenu);
+			fileMenu.add(endMenu);
+			editMenu.add(smallFont);
+			editMenu.add(mediumFont);
+			editMenu.add(largeFont);
+			helpMenu.add(infoMenu);
+				
+			
+			toolBar = new JToolBar();
+			newBtn = new JButton("새로 만들기");
+			openBtn = new JButton("열기");
+			saveBtn = new JButton("저장");
+			changeBtn = new JButton("다른이름 저장");
+			endBtn = new JButton("끝내기");
+			smallBtn = new JButton("작게");
+			mediumBtn = new JButton("보통");
+			largeBtn = new JButton("크게");
+			infoBtn = new JButton("프로그램 정보");
+			
+			newBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					newFile();
+				}
+			});
+			openBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					openFile();
+				}
+			});
+			saveBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					saveFile();
+				}
+			});
+			
+			changeBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					changeFile();
+				}
+			});
+			endBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					endFile();
+				}
+			});
+			
+			smallBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fontFile(5);
+				}
+			});
+			mediumBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fontFile(12);
+				}
+			});
+			largeBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fontFile(25);
+				}
+			});
+			infoBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					infoFile();
+				}
+			});
+			
+			
+			toolBar.add(newBtn);
+			toolBar.add(openBtn);
+			toolBar.add(saveBtn);
+			toolBar.add(changeBtn);
+			toolBar.add(endBtn);
+			toolBar.addSeparator(new Dimension(20,10));
+			toolBar.add(smallBtn);
+			toolBar.add(mediumBtn);
+			toolBar.add(largeBtn);
+			toolBar.addSeparator(new Dimension(20,10));
+			toolBar.add(infoBtn);
+			add(toolBar, BorderLayout.NORTH);
+			
+			textArea = new JTextArea();
+			textArea.setFont(new Font("돋움", Font.PLAIN, 12));
+			add(textArea);
+			
+			strPath = "";
+			strFilename = "";
+			this.setTitle("새문서.txt");
+
+			setSize(800,500);
+			setVisible(true);
+			
+			}
+			
+			void newFile() {
+				int btnOption = JOptionPane.showConfirmDialog(this,  "작성하시던 파일을 저장하시겠습니까?", "새로 만들기", 
+						JOptionPane.YES_NO_CANCEL_OPTION);
+				
+				if(btnOption == 0) saveFile();
+				else if(btnOption == -1)
+				else {
+					textArea.textArea("");
+					JFileChooser save = new JFileChooser();
+					int option = save.showOpenDialog(this);
+					fileToSave = option;
+					fileSave = save;
+				}
+				
+			}
+			
+			void openFile() {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("txt", "txt file");
+					chooser.setFileFilter(filter);
+			
+				int returnVal = chooser.showSaveDialog(null);
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					strPath = chooser.getSelectedFile().getPath();
+					strFilename = chooser.getSelectedFile().getName();
+					System.out.println("File open path : " + strPath);
+					try {
+						BufferedReader reader = new BufferedReader(new FileReader(strPath));
+						String str;
+				
+						textArea.setText("");
+						while((str = reader.readLine()) != null)
+							textArea.setText(textArea.getText() + str + "\n");
+				
+						reader.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					textArea.setFont(new Font("돋움", Font.PLAIN, 12));
+					this.setTitle("");
+				}
+			
+			}
+			
+			
+			void saveFile() {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("txt", "txt file");
+					chooser.setFileFilter(filter);
+			
+				int returnVal = chooser.showSaveDialog(null);
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					strPath = chooser.getSelectedFile().getPath();
+					strFilename = chooser.getSelectedFile().getName();
+					System.out.println("File open path : " + strPath);
+					try {
+						BufferedReader reader = new BufferedReader(new FileReader(strPath));
+						String str;
+				
+						textArea.setText("");
+						while((str = reader.readLine()) != null)
+							textArea.setText(textArea.getText() + str + "\n");
+				
+						reader.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					textArea.setFont(new Font("돋움", Font.PLAIN, 12));
+					this.setTitle("");
+				}
+			
+			}
+			
+			void changeFile() {
+				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("txt", ".txt", "txt file");
+					chooser.setFileFilter(filter);
+					
+			}
+			
+			void endFile() {
+				int btnOption = JOptionPane.showConfirmDialog(this,  "작성하시던 파일을 저장하시겠습니까?", "새로 만들기", 
+						JOptionPane.YES_NO_CANCEL_OPTION);
+			}
+			
+			
+			void fontFile(int n) {
+				textArea.setFont(new Font("돋움", Font.PLAIN, n));
+			}
+		
+			void infoFile() {
+				JOptionPane.showMessageDialog(pane, "MemoNote 2009/12 Kim & Park");  
+			}
+	}
+	public static void main(String[] args)  
+	{  
+		Memopro();
+	}
+}

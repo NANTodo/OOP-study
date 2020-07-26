@@ -1,0 +1,79 @@
+package address;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+public class initPanel extends JPanel {
+	
+	private JLabel	title;
+	private JButton	Printbtn;
+	private JButton	Signbtn;
+	private	JButton	Deletebtn;
+	private	JButton	Exitbtn;
+	
+	private PrimaryPanel	parentPanel;
+	
+	public initPanel(PrimaryPanel parent) {
+		parentPanel = parent;
+		setLayout(null);
+		setBounds(0,0,300,800);
+		setVisible(true);
+		
+		title = new JLabel("친구 연락처");
+		title.setBounds(10, 10, 280, 50);
+		title.setHorizontalAlignment(SwingConstants.CENTER);
+		add(title);
+		
+		Printbtn = new JButton("연락처 출력");
+		Printbtn.setBounds(10, 110, 280, 50);
+		add(Printbtn);
+		Signbtn = new JButton("연락처 등록");
+		Signbtn.setBounds(10, 210, 280, 50);
+		add(Signbtn);
+		Deletebtn = new JButton("연락처 삭제");
+		Deletebtn.setBounds(10, 310, 280, 50);
+		add(Deletebtn);
+		Exitbtn = new JButton("끝내기");
+		Exitbtn.setBounds(10, 410, 280, 50);
+		add(Exitbtn);
+
+
+
+	}
+	
+	private class btnListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Object obj = e.getSource();
+			if(obj == Printbtn)
+			{
+				parentPanel.disableInitPanel();
+				try {
+					parentPanel.addPrintPanel();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		/*	if(obj == Signbtn)
+			{
+				parentPanel.disableInitPanel();
+				parentPanel.enableSignPanel();
+			}
+			if(obj == Deletebtn)
+			{
+				parentPanel.disableInitPanel();
+				parentPanel.enableDeletePanel();
+			}
+			if(obj==Exitbtn)
+			{
+				System.exit(0);
+			}*/
+		}
+		
+	}
+}

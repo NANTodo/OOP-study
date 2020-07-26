@@ -1,0 +1,139 @@
+package multichat;
+
+import java.io.*;
+import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.logging.Logger;
+
+
+import static java.util.logging.Level.WARNING;
+
+import com.google.gson.*;
+
+public class MultiChatController implements Runnable {
+
+	private Message m;
+	private final MultiChatUI v;
+	private final MultiChatData chatData;
+	private String ip = "127.0.0.1";
+	private Socket socket;
+	private PrintWriter outMsg;
+	private boolean status = true;
+	private Gson gson = new Gson();
+	private BufferedReader inMsg;
+	private Logger logger;
+	private Thread thread;
+
+	public MultiChatController(MultiChatData chatData, MultiChatUI v) {
+		logger = Logger.getLogger(this.getClass().getName());
+		this.v = v;
+		this.chatData = chatData;
+	}
+
+	public void appMain() {
+		chatData.addObj(v.msgOut);
+
+		v.addButtonActionListener(e -> {
+			
+				Object obj = e.getSource();
+
+				if (obj == v.exitButton) {
+					System.exit(0);
+				} else if (obj == v.loginButton) {
+					v.id = v.idInput.getText();
+					v.outLabel.setText(" 대화명 : " + v.id);
+					v.cardLayout.show(v.tab, "logout");
+					connectServer();
+				} else if (obj == v.logoutButton) {
+					outMsg.println(gson.toJson(new Message(v.id, "", "", "logout")));
+
+					v.msgOut.setText("");
+					v.cardLayout.show(v.tab, "login");
+					outMsg.close();
+
+					try {
+						inMsg.close();
+						socket.close();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+
+					status = false;
+				} else if (obj == v.msgInput) {
+					String input = v.msgInput.getText();
+					String data = null;
+					if (input.startsWith("/")) {
+						String[] rmsg = input.split("\\s");
+						if (rmsg.length >= 3) {
+							data = gson.toJson(new Message(v.id, "", rmsg[2], "whisper", rmsg[1]));
+							v.msgInput.setText("");
+						}else {
+							v.msgInput.setText("Error");
+						}
+					}else {
+						data = gson.toJson(new Message(v.id, "", v.msgInput.getText(), "msg"));
+						v.msgInput.setText("");
+						chatData.refreshData(v.msgInput.getText());
+					}
+					outMsg.println(data);
+				}
+			}
+			);
+	}
+	public void connectServer() {
+		try {
+			socket = new Socket(ip, 8888);
+			System.out.println("connectServer success");
+
+			inMsg = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			outMsg = new PrintWriter(socket.getOutputStream(), true);
+
+			m = new Message(v.id, "", "", "login");
+			outMsg.println(gson.toJson(m));
+
+			thread = new Thread(this);
+			thread.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	public void run() {
+		String msg;
+		status = true;
+
+		while (status) {
+			try {
+				msg = inMsg.readLine();
+				m = gson.fromJson(msg, Message.class);
+
+				if (!m.msg.equals("")) {
+					if (m.type.equals("whisper")) {
+						chatData.refreshData(m.id + "귓속말임" + m.msg + "\n");
+					} else {
+						chatData.refreshData(m.id + ">" + m.msg + "\n");
+					}
+				}
+				v.msgOut.setCaretPosition(v.msgOut.getDocument().getLength());
+			} catch (IOException e) {
+				logger.log(WARNING,"[MultiChatUI]메세지 스트림 종료!!");
+				e.printStackTrace();
+			}
+		}
+		System.out.println(thread.getName() + "메세지 수신 쓰레드 종료");
+	}
+
+	public static void main(String[] args) {
+		MultiChatController app = new MultiChatController(new MultiChatData(), new MultiChatUI());
+		MultiChatController app2 = new MultiChatController(new MultiChatData(), new MultiChatUI());
+		MultiChatController app3 = new MultiChatController(new MultiChatData(), new MultiChatUI());
+		app.appMain();
+		app2.appMain();
+		app3.appMain();
+	}
+}

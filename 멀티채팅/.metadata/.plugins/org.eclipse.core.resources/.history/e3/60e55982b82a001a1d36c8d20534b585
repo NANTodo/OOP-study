@@ -1,0 +1,96 @@
+package multichat;
+
+import java.net.*;
+import java.util.*;
+import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+
+import java.awt.*;
+import java.io.*;
+
+public class MultiChatServer {
+
+	private ServerSocket ss = null;
+	private Socket s = null;
+	private boolean status;
+
+	ArrayList<ChatThread> chatThreads = new ArrayList<ChatThread>();
+
+	Logger logger;
+
+	public void start() {
+		logger = Logger.getLogger(this.getClass().getName());
+
+		try {
+			ss = new ServerSocket(8888);
+			logger.info("MultiChatServer start");
+
+			while (true) {
+				s = ss.accept();
+				ChatThread chat = new ChatThread();
+				chatThreads.add(chat);
+				chat.start();
+			}
+		} catch (Exception e) {
+			logger.info("[MultiChatServer]start() Exception 발생!!");
+			e.printStackTrace();
+		}
+
+	}
+
+	class ChatThread extends Thread {
+		String msg;
+		Message m = new Message();
+		Gson gson = new Gson();
+
+		private BufferedReader inMsg = null;
+		private PrintWriter outMsg = null;
+
+		public void run() {
+			try {
+				inMsg = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				outMsg = new PrintWriter(s.getOutputStream(), true);
+			} catch (IOException e) {
+				e.printStackTrace();
+				status = false;
+			}
+			while (status) {
+				try {
+					msg = inMsg.readLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				m = gson.fromJson(msg, Message.class); 
+
+				if (m.getType().equals("logout")) 
+				{
+					chatThreads.remove(this); 
+
+					msgSendAll(gson.toJson(new Message(m.getId(), "", "님이 종료했습니다.", "server"))); 
+				} else if (m.getType().equals("login")) 
+				{
+					msgSendAll(gson.toJson(new Message(m.getId(), "", "님이 로그인 했습니다.", "server"))); 
+				} else 
+				{
+					msgSendAll(gson.toJson(new Message(m.getId(), m.getPasswd(), m.getMsg(), m.getType())));
+				}
+			}
+
+			this.interrupt(); 
+			logger.info(this.getName() + " 종료됨!!");
+			status = false;
+		}
+
+		void msgSendAll(String msg) 
+		{
+
+			for (ChatThread ct : chatThreads) 
+			{
+				System.out.println(msg);
+				ct.outMsg.println(msg);
+			}
+
+		}
+	}
+}

@@ -1,0 +1,173 @@
+package multichat;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+
+
+public class MultiChatController implements Runnable{			
+	
+	public static MultiChatServer server;						
+	
+	public boolean status;										
+	private final MultiChatUI v;								
+	private final MultiChatData chatData;						
+	
+	private Logger logger;										
+	
+	private Gson gson = new Gson();								
+	private Socket socket;										
+	
+	private BufferedReader inMsg =null;							
+	private PrintWriter outMsg =null;							
+	
+	private Message m = null;									
+	private Thread thread;										
+	
+	public MultiChatController(MultiChatData chatData, MultiChatUI v)
+	{
+		logger = Logger.getLogger(this.getClass().getName());	
+		this.chatData = chatData;								
+		this.v = v;												
+	}
+	
+	public void appMain()
+	{
+		chatData.addObj(v.msgOut);								
+		
+		v.addButtonActionListener(new ActionListener(){			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Object obj = e.getSource();
+				if(obj == v.exitButton)							
+				{
+					System.exit(0);
+				}
+				else if(obj == v.loginButton)					
+				{
+					v.id = v.idInput.getText();					
+					v.outLabel.setText(" 대화명 : "+v.id);		
+					v.cardLayout.show(v.tab, "logout");			
+					connectServer();							
+					
+					status = true;								
+				}
+				else if(obj == v.logoutButton)					
+				{
+					outMsg.println(gson.toJson(new Message(v.id, "", "", "logout" )));	
+					v.msgOut.setText("");
+					v.cardLayout.show(v.tab ,"login");			
+					outMsg.close();								
+					
+					try
+					{
+						inMsg.close();							//버퍼리더 끄기
+						socket.close();							//소켓 종료 (끊기)
+					}
+					catch(IOException ex)
+					{
+						ex.printStackTrace();
+					}
+					status = false;
+				}
+				else if(obj == v.msgInput)						//enter를 눌렀을 경우
+				{
+					v.msgInput.setText("");						//기존 UI 입력란 초기화
+				}
+			}
+			
+		});
+		
+	}
+	public void connectServer()									//서버 연결
+	{
+		try
+		{
+			socket = new Socket("localhost", 8888);			//서버 연결
+			logger.info("[Client]Sever 연결 성공!!");
+			
+			//입출력 스트림 생성
+			inMsg = new BufferedReader(new InputStreamReader(socket.getInputStream()));	//입력 스트림 선언
+			outMsg = new PrintWriter(socket.getOutputStream(), true);					//출력 스트림 선언
+			
+			//서버에 로그인 메시지 전달
+			m = new Message(v.id, "","","login");
+			
+			outMsg.println(gson.toJson(m));						//출력 스트림 객체에 메세지를 Json 코드로 파싱
+			//System.out.println(gson.toJson(m));
+			
+			thread = new Thread(this);							//Runnable 에 쓰래드 붙이기
+			thread.start();										//쓰래드 시작
+		}
+		catch(Exception e)
+		{
+			logger.warning("[MultiChatUI]connectServer() Exception 발생!!");
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void run()
+	{
+		String msg;															//메세지 선언
+		
+		while(status)
+		{
+			try
+			{
+				msg = inMsg.readLine();										//입력 스트림으로 부터 전달 받은 메세지 저장
+				m = gson.fromJson(msg ,Message.class);						//Json 코드로 파싱
+				
+				chatData.refreshData(m.getId() + ">" + m.getMsg() + "\n");	//UI 채팅창에 입력
+				//System.out.println(m.getId() + ">" + m.getMsg() + "\n");
+				
+				v.msgOut.setCaretPosition(v.msgOut.getDocument().getLength()); //커서를 마지막으로 옮김
+			}
+			catch(IOException e)
+			{
+				logger.warning("[MultiChatUI]메시지 스트림 종료!!");
+			}
+		}
+		
+		logger.info("[MultiChatUI]" + thread.getName() + "메시지 수신 스레드 종료됨!!");
+	}
+	
+	
+	/*
+	 * 추가기능
+	 * -채팅방에 참여하고 있는 유저들 표시하는 기능 부여
+	 * -우측 TextArea 에 현재 참여하고 있는 유저들 표시
+	 * -프로그램 구동 이상무
+	 * */
+	public static void main(String [] args)
+	{
+		
+		MultiChatController app = new MultiChatController(new MultiChatData(), 		//Client 부분 실행
+				new MultiChatUI());
+		app.appMain();
+		
+		MultiChatController app1 = new MultiChatController(new MultiChatData(), 		//Client 부분 실행
+				new MultiChatUI());
+		app1.appMain();
+		MultiChatController app2 = new MultiChatController(new MultiChatData(), 		//Client 부분 실행
+				new MultiChatUI());
+		app2.appMain();
+		MultiChatController app3 = new MultiChatController(new MultiChatData(), 		//Client 부분 실행
+				new MultiChatUI());
+		app3.appMain();
+		
+		MultiChatServer server = new MultiChatServer();								//서버 실행
+		server.start();
+
+	}
+	
+	
+}

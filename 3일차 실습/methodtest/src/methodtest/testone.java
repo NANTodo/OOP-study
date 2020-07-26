@@ -1,0 +1,25 @@
+package methodtest;
+
+import java.io.*;
+
+public class testone {
+	FileInputStream fis;
+	
+	void openFile() throws FileNotFoundException{
+		fis = new FileInputStream("C:/dev/a.txt");
+	}
+	void printFile() throws IOException{
+		System.out.println(fis.read());
+	}
+	public static void main(String[] args) {
+		testone app = new testone();
+		try {
+			app.openFile();
+			app.printFile();
+		}catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}

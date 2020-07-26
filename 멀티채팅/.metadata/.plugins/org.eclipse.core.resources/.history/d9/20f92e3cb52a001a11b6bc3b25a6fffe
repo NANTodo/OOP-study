@@ -1,0 +1,116 @@
+package multichat;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+
+public class MultiChatUI extends JFrame {
+
+	
+	public String id;
+	//로그인
+	private JPanel loginPanel;
+	protected JButton loginButton;
+	//대화명
+	private JLabel inLabel;
+	protected JLabel outLabel;
+	protected JTextField idInput;
+	//로그아웃
+	private JPanel logoutPanel;
+	protected JButton logoutButton;
+	//메시지
+	private JPanel msgPanel;
+	protected JTextField msgInput;
+	//종료
+	protected JButton exitButton;
+	//화면구성전환을 위한 카드 레이아웃
+	protected Container tab;
+	protected CardLayout cardLayout;
+	//채팅 내용 출력 창
+	protected JTextArea msgOut;
+	
+	protected JPanel memberPanel;
+	protected JLabel memberlbl;
+	protected JTextArea info;
+	
+	public MultiChatUI() {
+		super("::멀티챗::");
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+		setSize(1000,700);
+		
+		loginPanel = new JPanel();
+		loginPanel.setLayout(new BorderLayout());
+		
+		idInput = new JTextField(15);
+		loginButton = new JButton("로그인");
+		
+		inLabel = new JLabel("대화명 ");
+		loginPanel.add(inLabel, BorderLayout.WEST);
+		loginPanel.add(idInput, BorderLayout.CENTER);
+		loginPanel.add(loginButton, BorderLayout.EAST);
+		
+		logoutPanel = new JPanel();
+		logoutPanel.setLayout(new BorderLayout());
+		outLabel = new JLabel();
+		logoutButton = new JButton("로그아웃");
+		
+		logoutPanel.add(outLabel, BorderLayout.CENTER);
+		logoutPanel.add(logoutButton, BorderLayout.EAST);
+	
+		
+		exitButton = new JButton("종료");
+		msgPanel.add(msgInput, BorderLayout.CENTER);
+		msgPanel.add(exitButton, BorderLayout.EAST);
+		
+		tab = new JPanel();
+		cardLayout = new CardLayout();
+		tab.setLayout(cardLayout);
+		tab.add(loginPanel, "login");
+		tab.add(logoutPanel, "logout");
+		tab.setBounds(0,0,100,30);
+		add(tab, BorderLayout.NORTH);
+		
+		msgOut = new JTextArea("", 10, 30);						//메인 채팅창 선언
+		msgOut.setFont(new Font("Gothic", Font.PLAIN, 40));
+		msgOut.setBackground(new Color(219, 244, 255));
+		msgOut.setEditable(false);								//편집 못하게 막음
+		
+		//스크롤바 붙이기
+		JScrollPane jsp = new JScrollPane(msgOut, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		add(jsp, BorderLayout.CENTER);
+		
+		msgPanel = new JPanel();								//채팅 메세지 입력 패널 선언
+		exitButton = new JButton("종료");						//종료 버튼 선언
+		msgInput = new JTextField(80);
+		msgPanel.add(msgInput, BorderLayout.WEST);				//메세지 입력 제일 좌측으로
+		msgPanel.add(exitButton, BorderLayout.EAST);			//종료 버튼 제일 우측으로
+		add(msgPanel, BorderLayout.SOUTH);						//메세지 입력 패널 제일 하단에 붙이기
+				
+		memberPanel = new JPanel();						//맴버 패널 선언
+		memberPanel.setLayout(new BorderLayout());
+		memberlbl = new JLabel("맴버");					//맴버 라벨 선언
+		memberPanel.add(memberlbl, BorderLayout.NORTH);
+		
+		info = new JTextArea("", 10,30);
+		info.setFont(new Font("Gothic", Font.BOLD,15));
+		info.setBackground(new Color(185, 197, 236));
+		info.setEditable(false);
+		JScrollPane scroll = new JScrollPane(info,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		memberPanel.add(scroll);
+		
+		add(memberPanel, BorderLayout.EAST);
+		
+		setVisible(true);
+	}
+	
+	public void addButtonActionListener(ActionListener listener)	//관련 ActionListener 선언 메소드
+	{
+		loginButton.addActionListener(listener);
+		logoutButton.addActionListener(listener);
+		exitButton.addActionListener(listener);
+		msgInput.addActionListener(listener);
+	}
+		
+}

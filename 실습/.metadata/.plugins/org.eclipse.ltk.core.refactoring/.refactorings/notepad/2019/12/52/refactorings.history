@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;notepad.notepad.java&apos; to &apos;notememo.java&apos;&#x0D;&#x0A;- Original project: &apos;notepad&apos;&#x0D;&#x0A;- Original element: &apos;notepad.notepad.java&apos;&#x0D;&#x0A;- Renamed element: &apos;notepad.notememo.java&apos;" description="Rename compilation unit &apos;notepad.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;notepad{notepad.java" name="notememo.java" references="false" stamp="1577087270938" version="1.0"/>
+</session>
